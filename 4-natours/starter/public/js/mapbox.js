@@ -1,9 +1,8 @@
 // eslint-disable-next-line no-undef
 
 export const displayMap = (locations) => {
-  // Replace 'your-access-token' with your Mapbox access token
-  mapboxgl.accessToken =
-    'pk.eyJ1Ijoia2hhbmdkYW5nMTIzIiwiYSI6ImNtNWFkN20ydTRqb2wycXBrZzR2bjZmN3cifQ.DkirAUCUzQoY_hipyjowXw';
+  // Use environment variable for Mapbox access token
+  mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN;
 
   // Create a new Mapbox map
   const map = new mapboxgl.Map({
