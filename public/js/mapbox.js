@@ -47,26 +47,19 @@ export const displayMap = (locations) => {
     ? validLocations[0].coordinates 
     : [-118.113491, 34.111745]; // Default to Los Angeles
 
-  // Create map with multiple fallback styles
-  const styles = [
-    'mapbox://styles/mapbox/streets-v12',
-    'mapbox://styles/mapbox/outdoors-v12',
-    'mapbox://styles/mapbox/light-v11'
-  ];
-
-  let currentStyleIndex = 0;
-
+  // Create map
   const map = new mapboxgl.Map({
     container: 'map', 
-    style: styles[currentStyleIndex],
+    style: 'mapbox://styles/mapbox/standard-v1', 
     center: center,
     zoom: 6,
-    scrollZoom: false,
-    attributionControl: true
+    projection: 'globe', 
+    scrollZoom: false
   });
 
-  // Add navigation controls
+  // Add navigation and fullscreen controls
   map.addControl(new mapboxgl.NavigationControl());
+  map.addControl(new mapboxgl.FullscreenControl());
 
   // Style loading error handling
   map.on('styleimagemissing', (e) => {
@@ -129,5 +122,9 @@ export const displayMap = (locations) => {
   // Logging
   map.on('load', () => {
     console.log('Mapbox map loaded successfully');
+  });
+
+  map.on('error', (e) => {
+    console.error('Mapbox Error:', e);
   });
 };

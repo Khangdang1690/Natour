@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'", 'https://*.stripe.com', 'https://api.mapbox.com'],
+      defaultSrc: ["'self'", 'https://*.stripe.com', 'https://api.mapbox.com', 'https://events.mapbox.com', 'https://maps.mapbox.com'],
       styleSrc: [
         "'self'",
         'https://fonts.googleapis.com',
