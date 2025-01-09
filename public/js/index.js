@@ -22,6 +22,36 @@ if (mapBox) {
     displayMap(locations);
   } catch (error) {
     console.error('Error parsing map locations:', error);
+    showAlert('error', 'Unable to load map locations. Please refresh the page.');
+  }
+}
+
+async function handleAjaxError(error, defaultMessage = 'An error occurred') {
+  console.error('Full error details:', error);
+  
+  // Check if it's a response error
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.error('Error response data:', error.response.data);
+    console.error('Error response status:', error.response.status);
+    console.error('Error response headers:', error.response.headers);
+    
+    // Try to parse and show server error message
+    try {
+      const errorMessage = error.response.data.message || defaultMessage;
+      showAlert('error', errorMessage);
+    } catch {
+      showAlert('error', defaultMessage);
+    }
+  } else if (error.request) {
+    // The request was made but no response was received
+    console.error('No response received:', error.request);
+    showAlert('error', 'No response from server. Please check your connection.');
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    console.error('Error setting up request:', error.message);
+    showAlert('error', defaultMessage);
   }
 }
 
@@ -32,18 +62,15 @@ if (loginForm) {
     const password = document.getElementById('password');
     
     if (email && password) {
-      login(email.value, password.value).catch(error => {
-        console.error('Login error:', error);
-      });
+      login(email.value, password.value)
+        .catch(error => handleAjaxError(error, 'Login failed'));
     }
   });
 }
 
 if (logOutBtn) {
   logOutBtn.addEventListener('click', () => {
-    logout().catch(error => {
-      console.error('Logout error:', error);
-    });
+    logout().catch(error => handleAjaxError(error, 'Logout failed'));
   });
 }
 
@@ -56,6 +83,7 @@ if (userDataForm) {
     form.append('photo', document.getElementById('photo').files[0]);
 
     updateSettings(form, 'data')
+      .catch(error => handleAjaxError(error, 'Failed to update user data'));
   });
 }
 
@@ -78,8 +106,9 @@ if (userPasswordForm) {
       // Reset form and button
       saveButton.textContent = 'Save password';
       e.target.reset();
+      showAlert('success', 'Password updated successfully');
     } catch (error) {
-      console.error('Update password error:', error);
+      handleAjaxError(error, 'Failed to update password');
       saveButton.textContent = 'Save password';
     }
   });
@@ -90,10 +119,11 @@ if (bookBtn) {
     e.target.textContent = 'Processing...';
     const { tourId } = e.target.dataset;
     
-    bookTour(tourId).catch(error => {
-      console.error('Book tour error:', error);
-      e.target.textContent = 'Book tour';
-    });
+    bookTour(tourId)
+      .catch(error => {
+        handleAjaxError(error, 'Failed to book tour');
+        e.target.textContent = 'Book tour';
+      });
   });
 
   const alertMessage = document.querySelector('body').dataset.alert;
