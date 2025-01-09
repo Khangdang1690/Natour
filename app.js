@@ -47,6 +47,7 @@ app.use(
         "'self'",
         'https://fonts.googleapis.com',
         'https://api.mapbox.com',
+        'https://www.gstatic.com', 
       ],
       scriptSrc: [
         "'self'",
@@ -54,19 +55,31 @@ app.use(
         'https://js.stripe.com',
         'blob:',
         'https://cdn.jsdelivr.net',
+        'https://events.mapbox.com', 
+        'https://www.gstatic.com', 
         "'unsafe-inline'",
       ],
-      workerSrc: ["'self'", 'blob:'],
+      workerSrc: [
+        "'self'", 
+        'blob:'
+      ],
       connectSrc: [
         "'self'", 
         'https://api.mapbox.com', 
+        'https://events.mapbox.com', 
         'https://*.stripe.com',
         'ws://127.0.0.1:*', 
         'http://127.0.0.1:*', 
       ],
       frameSrc: ["'self'", 'https://*.stripe.com'],
-      imgSrc: ["'self'", 'https://api.mapbox.com', 'data:', 'blob:'],
-    },
+      imgSrc: [
+        "'self'",
+        'data:',
+        'https://api.mapbox.com',
+        'https://*.stripe.com',
+        'blob:'
+      ]
+    }
   })
 );
 
