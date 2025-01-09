@@ -1,5 +1,8 @@
 // eslint-disable-next-line no-undef
 export const displayMap = (locations) => {
+  // Detailed logging of locations
+  console.log('Raw Locations:', JSON.stringify(locations, null, 2));
+
   // Check if Mapbox is available and locations exist
   if (!mapboxgl || !locations || locations.length === 0) {
     console.error('Mapbox or locations not available');
@@ -24,13 +27,34 @@ export const displayMap = (locations) => {
     return;
   }
 
+  // Validate and transform locations
+  const validLocations = locations.filter(loc => {
+    const isValid = loc.coordinates && 
+                    Array.isArray(loc.coordinates) && 
+                    loc.coordinates.length === 2 &&
+                    !isNaN(loc.coordinates[0]) && 
+                    !isNaN(loc.coordinates[1]);
+    
+    if (!isValid) {
+      console.error('Invalid location:', loc);
+    }
+    return isValid;
+  });
+
+  console.log('Valid Locations:', JSON.stringify(validLocations, null, 2));
+
+  // If no valid locations, use a default center
+  const defaultCenter = [-118.113491, 34.111745]; // Los Angeles as default
+  const center = validLocations.length > 0 
+    ? validLocations[0].coordinates 
+    : defaultCenter;
+
   // Create a new Mapbox map
   const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/mapbox/streets-v12',
     scrollZoom: false,
-    // Add default center and zoom if no locations
-    center: locations[0]?.coordinates || [0, 0],
+    center: center,
     zoom: 6
   });
 
@@ -46,13 +70,7 @@ export const displayMap = (locations) => {
 
   const bounds = new mapboxgl.LngLatBounds();
 
-  locations.forEach((loc) => {
-    // Validate location coordinates
-    if (!loc.coordinates || loc.coordinates.length !== 2) {
-      console.error('Invalid location coordinates:', loc);
-      return;
-    }
-
+  validLocations.forEach((loc) => {
     // Create marker
     const el = document.createElement('div');
     el.className = 'marker';
@@ -77,16 +95,20 @@ export const displayMap = (locations) => {
     bounds.extend(loc.coordinates);
   });
 
-  // Only fit bounds if there are multiple locations
-  if (locations.length > 1) {
-    map.fitBounds(bounds, {
-      padding: {
-        top: 200,
-        bottom: 150,
-        left: 100,
-        right: 100
-      }
-    });
+  // Only fit bounds if there are multiple valid locations
+  if (validLocations.length > 1) {
+    try {
+      map.fitBounds(bounds, {
+        padding: {
+          top: 200,
+          bottom: 150,
+          left: 100,
+          right: 100
+        }
+      });
+    } catch (error) {
+      console.error('Error fitting bounds:', error);
+    }
   }
 
   // Ensure map is fully loaded
