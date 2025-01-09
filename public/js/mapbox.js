@@ -68,9 +68,20 @@ export const displayMap = (locations) => {
     });
   });
 
-  const bounds = new mapboxgl.LngLatBounds();
+  // Create bounds manually to avoid fitBounds error
+  let minLng = Infinity;
+  let maxLng = -Infinity;
+  let minLat = Infinity;
+  let maxLat = -Infinity;
 
   validLocations.forEach((loc) => {
+    const [lng, lat] = loc.coordinates;
+    
+    minLng = Math.min(minLng, lng);
+    maxLng = Math.max(maxLng, lng);
+    minLat = Math.min(minLat, lat);
+    maxLat = Math.max(maxLat, lat);
+
     // Create marker
     const el = document.createElement('div');
     el.className = 'marker';
@@ -90,24 +101,30 @@ export const displayMap = (locations) => {
       .setLngLat(loc.coordinates)
       .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
       .addTo(map);
-
-    // Extend map bounds to include current location
-    bounds.extend(loc.coordinates);
   });
 
-  // Only fit bounds if there are multiple valid locations
+  // Only adjust bounds if we have multiple locations
   if (validLocations.length > 1) {
     try {
-      map.fitBounds(bounds, {
-        padding: {
-          top: 200,
-          bottom: 150,
-          left: 100,
-          right: 100
-        }
-      });
+      // Calculate padding and adjust map view
+      const padding = 1.2; // Add 20% padding
+      const lngSpan = maxLng - minLng;
+      const latSpan = maxLat - minLat;
+
+      const centerLng = (minLng + maxLng) / 2;
+      const centerLat = (minLat + maxLat) / 2;
+
+      map.setCenter([centerLng, centerLat]);
+      
+      // Calculate appropriate zoom level
+      const zoom = Math.min(
+        map.getZoom(), 
+        Math.log2(360 / (lngSpan * padding))
+      );
+      
+      map.setZoom(zoom);
     } catch (error) {
-      console.error('Error fitting bounds:', error);
+      console.error('Error adjusting map view:', error);
     }
   }
 
