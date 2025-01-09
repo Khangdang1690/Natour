@@ -6,9 +6,16 @@ export const displayMap = (locations) => {
     return;
   }
 
+  // Validate access token
+  const accessToken = process.env.MAPBOX_ACCESS_TOKEN;
+  if (!accessToken) {
+    console.error('Mapbox Access Token is not defined');
+    return;
+  }
+
   // Use environment variable for Mapbox access token
-  mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN;
-  console.log('Mapbox Access Token:', mapboxgl.accessToken);
+  mapboxgl.accessToken = accessToken;
+  console.log('Mapbox Access Token:', accessToken);
 
   // Find map container
   const mapContainer = document.getElementById('map');
@@ -27,12 +34,25 @@ export const displayMap = (locations) => {
     zoom: 6
   });
 
-  // Add navigation controls
-  map.addControl(new mapboxgl.NavigationControl());
+  // Add detailed error logging
+  map.on('error', (e) => {
+    console.error('Detailed Mapbox Error:', {
+      error: e.error,
+      message: e.error?.message,
+      type: e.type,
+      source: e.source
+    });
+  });
 
   const bounds = new mapboxgl.LngLatBounds();
 
   locations.forEach((loc) => {
+    // Validate location coordinates
+    if (!loc.coordinates || loc.coordinates.length !== 2) {
+      console.error('Invalid location coordinates:', loc);
+      return;
+    }
+
     // Create marker
     const el = document.createElement('div');
     el.className = 'marker';
@@ -72,9 +92,5 @@ export const displayMap = (locations) => {
   // Ensure map is fully loaded
   map.on('load', () => {
     console.log('Mapbox map loaded successfully');
-  });
-
-  map.on('error', (e) => {
-    console.error('Mapbox error:', e);
   });
 };
