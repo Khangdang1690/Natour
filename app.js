@@ -77,6 +77,7 @@ app.use(
         "'self'",
         'data:',
         'https://api.mapbox.com',
+        'https://events.mapbox.com',
         'https://*.stripe.com',
         'blob:'
       ],

@@ -47,17 +47,35 @@ export const displayMap = (locations) => {
     ? validLocations[0].coordinates 
     : [-118.113491, 34.111745]; // Default to Los Angeles
 
-  // Create map
+  // Create map with multiple fallback styles
+  const styles = [
+    'mapbox://styles/mapbox/streets-v12',
+    'mapbox://styles/mapbox/outdoors-v12',
+    'mapbox://styles/mapbox/light-v11'
+  ];
+
+  let currentStyleIndex = 0;
+
   const map = new mapboxgl.Map({
     container: 'map', 
-    style: 'mapbox://styles/mapbox/streets-v12',
+    style: styles[currentStyleIndex],
     center: center,
     zoom: 6,
-    scrollZoom: false
+    scrollZoom: false,
+    attributionControl: true
   });
 
   // Add navigation controls
   map.addControl(new mapboxgl.NavigationControl());
+
+  // Style loading error handling
+  map.on('styleimagemissing', (e) => {
+    console.warn('Style image missing:', e);
+    
+    // Cycle through styles if current style fails
+    currentStyleIndex = (currentStyleIndex + 1) % styles.length;
+    map.setStyle(styles[currentStyleIndex]);
+  });
 
   // Add markers and popups
   validLocations.forEach((loc) => {
@@ -92,12 +110,24 @@ export const displayMap = (locations) => {
     });
   }
 
+  // Detailed error logging
+  map.on('error', (e) => {
+    console.error('Detailed Mapbox Error:', {
+      error: e.error,
+      message: e.error?.message,
+      type: e.type,
+      source: e.source
+    });
+
+    // Attempt to reload style if there's a loading error
+    if (e.error && e.error.status === 403) {
+      currentStyleIndex = (currentStyleIndex + 1) % styles.length;
+      map.setStyle(styles[currentStyleIndex]);
+    }
+  });
+
   // Logging
   map.on('load', () => {
     console.log('Mapbox map loaded successfully');
-  });
-
-  map.on('error', (e) => {
-    console.error('Mapbox Error:', e);
   });
 };
