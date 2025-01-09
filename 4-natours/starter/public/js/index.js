@@ -54,9 +54,7 @@ if (userDataForm) {
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
 
-    updateSettings(form, 'data').catch(error => {
-      console.error('Update user data error:', error);
-    });
+    updateSettings(form, 'data')
   });
 }
 

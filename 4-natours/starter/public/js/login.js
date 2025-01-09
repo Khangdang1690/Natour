@@ -25,7 +25,7 @@ export const login = async (email, password) => {
 
     const res = await axios({
       method: 'POST',
-      url: 'http://127.0.0.1:3000/api/v1/users/login',
+      url: '/api/v1/users/login',
       data: { email, password },
       withCredentials: true
     });
@@ -57,7 +57,7 @@ export const logout = async () => {
   try {
     const res = await axios({
       method: 'GET',
-      url: 'http://127.0.0.1:3000/api/v1/users/logout',
+      url: '/api/v1/users/logout',
       withCredentials: true
     });
 
