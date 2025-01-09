@@ -42,22 +42,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'", 'https://*.stripe.com'],
+      defaultSrc: ["'self'", 'https://*.stripe.com', 'https://api.mapbox.com'],
       styleSrc: [
         "'self'",
         'https://fonts.googleapis.com',
         'https://api.mapbox.com',
+        'https://events.mapbox.com',
         'https://www.gstatic.com', 
+        "'unsafe-inline'"
       ],
       scriptSrc: [
         "'self'",
         'https://api.mapbox.com',
+        'https://events.mapbox.com',
         'https://js.stripe.com',
         'blob:',
         'https://cdn.jsdelivr.net',
-        'https://events.mapbox.com', 
         'https://www.gstatic.com', 
-        "'unsafe-inline'",
+        "'unsafe-inline'"
       ],
       workerSrc: [
         "'self'", 
@@ -71,14 +73,14 @@ app.use(
         'ws://127.0.0.1:*', 
         'http://127.0.0.1:*', 
       ],
-      frameSrc: ["'self'", 'https://*.stripe.com'],
       imgSrc: [
         "'self'",
         'data:',
         'https://api.mapbox.com',
         'https://*.stripe.com',
         'blob:'
-      ]
+      ],
+      frameSrc: ["'self'", 'https://*.stripe.com']
     }
   })
 );

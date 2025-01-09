@@ -49,14 +49,19 @@ export const displayMap = (locations) => {
     ? validLocations[0].coordinates 
     : defaultCenter;
 
-  // Create a new Mapbox map
+  // Create a new Mapbox map with explicit configuration
   const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/mapbox/streets-v12',
     scrollZoom: false,
     center: center,
-    zoom: 6
+    zoom: 6,
+    attributionControl: false,
+    failIfMajorPerformanceCaveat: false
   });
+
+  // Add navigation controls
+  map.addControl(new mapboxgl.NavigationControl());
 
   // Add detailed error logging
   map.on('error', (e) => {
@@ -68,7 +73,7 @@ export const displayMap = (locations) => {
     });
   });
 
-  // Create bounds manually to avoid fitBounds error
+  // Manually calculate bounds
   let minLng = Infinity;
   let maxLng = -Infinity;
   let minLat = Infinity;
@@ -85,12 +90,13 @@ export const displayMap = (locations) => {
     // Create marker
     const el = document.createElement('div');
     el.className = 'marker';
+    el.style.width = '32px';
+    el.style.height = '40px';
+    el.style.backgroundImage = 'url(/img/pin.png)';
+    el.style.backgroundSize = 'cover';
 
     // Add marker
-    new mapboxgl.Marker({
-      element: el,
-      anchor: 'bottom'
-    })
+    new mapboxgl.Marker(el)
       .setLngLat(loc.coordinates)
       .addTo(map);
 
@@ -103,24 +109,21 @@ export const displayMap = (locations) => {
       .addTo(map);
   });
 
-  // Only adjust bounds if we have multiple locations
+  // Adjust map view
   if (validLocations.length > 1) {
     try {
-      // Calculate padding and adjust map view
       const padding = 1.2; // Add 20% padding
-      const lngSpan = maxLng - minLng;
-      const latSpan = maxLat - minLat;
-
       const centerLng = (minLng + maxLng) / 2;
       const centerLat = (minLat + maxLat) / 2;
 
       map.setCenter([centerLng, centerLat]);
       
-      // Calculate appropriate zoom level
-      const zoom = Math.min(
-        map.getZoom(), 
+      // Calculate zoom based on longitude span
+      const lngSpan = maxLng - minLng;
+      const zoom = Math.max(4, Math.min(
+        10, 
         Math.log2(360 / (lngSpan * padding))
-      );
+      ));
       
       map.setZoom(zoom);
     } catch (error) {
