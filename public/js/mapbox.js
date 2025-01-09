@@ -19,7 +19,12 @@ export const displayMap = (locations) => {
     return;
   }
 
-  const accessToken = 'pk.eyJ1Ijoia2hhbmdkYW5nMTIzIiwiYSI6ImNtNWFkN20ydTRqb2wycXBrZzR2bjZmN3cifQ.DkirAUCUzQoY_hipyjowXw';
+  // Use access token from environment
+  const accessToken = process.env.MAPBOX_ACCESS_TOKEN;
+  if (!accessToken) {
+    console.error('Mapbox Access Token not found');
+    return;
+  }
   mapboxgl.accessToken = accessToken;
   console.log('Mapbox Access Token:', accessToken);
 
