@@ -551,13 +551,6 @@ body {
   width: 100%;
 }
 
-#map-container {
-  width: 100%;
-  height: 50vh;
-  position: relative;
-  overflow: hidden;
-}
-
 .marker {
   background-image: url('../img/pin.png');
   background-size: cover;
