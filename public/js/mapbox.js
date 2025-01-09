@@ -1,24 +1,10 @@
 // eslint-disable-next-line no-undef
 export const displayMap = (locations) => {
-  // Detailed logging of locations
-  console.log('Raw Locations:', JSON.stringify(locations, null, 2));
-
-  // Check if Mapbox is available and locations exist
-  if (!mapboxgl || !locations || locations.length === 0) {
-    console.error('Mapbox or locations not available');
+  // Validate locations
+  if (!locations || locations.length === 0) {
+    console.error('No locations provided');
     return;
   }
-
-  // Validate access token
-  const accessToken = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!accessToken) {
-    console.error('Mapbox Access Token is not defined');
-    return;
-  }
-
-  // Use environment variable for Mapbox access token
-  mapboxgl.accessToken = accessToken;
-  console.log('Mapbox Access Token:', accessToken);
 
   // Find map container
   const mapContainer = document.getElementById('map');
@@ -27,7 +13,20 @@ export const displayMap = (locations) => {
     return;
   }
 
-  // Validate and transform locations
+  // Validate Mapbox and access token
+  if (!mapboxgl) {
+    console.error('Mapbox GL JS not loaded');
+    return;
+  }
+
+  const accessToken = 'pk.eyJ1Ijoia2hhbmdkYW5nMTIzIiwiYSI6ImNtNWFkN20ydTRqb2wycXBrZzR2bjZmN3cifQ.DkirAUCUzQoY_hipyjowXw';
+  mapboxgl.accessToken = accessToken;
+  console.log('Mapbox Access Token:', accessToken);
+
+  // Log raw locations
+  console.log('Raw Locations:', JSON.stringify(locations, null, 2));
+
+  // Validate and filter locations
   const validLocations = locations.filter(loc => {
     const isValid = loc.coordinates && 
                     Array.isArray(loc.coordinates) && 
@@ -43,51 +42,26 @@ export const displayMap = (locations) => {
 
   console.log('Valid Locations:', JSON.stringify(validLocations, null, 2));
 
-  // If no valid locations, use a default center
-  const defaultCenter = [-118.113491, 34.111745]; // Los Angeles as default
+  // Use first valid location as center or default
   const center = validLocations.length > 0 
     ? validLocations[0].coordinates 
-    : defaultCenter;
+    : [-118.113491, 34.111745]; // Default to Los Angeles
 
-  // Create a new Mapbox map with explicit configuration
+  // Create map
   const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/mapbox/streets-v12',
-    scrollZoom: false,
     center: center,
     zoom: 6,
-    attributionControl: false,
-    failIfMajorPerformanceCaveat: false
+    scrollZoom: false
   });
 
   // Add navigation controls
   map.addControl(new mapboxgl.NavigationControl());
 
-  // Add detailed error logging
-  map.on('error', (e) => {
-    console.error('Detailed Mapbox Error:', {
-      error: e.error,
-      message: e.error?.message,
-      type: e.type,
-      source: e.source
-    });
-  });
-
-  // Manually calculate bounds
-  let minLng = Infinity;
-  let maxLng = -Infinity;
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-
+  // Add markers and popups
   validLocations.forEach((loc) => {
-    const [lng, lat] = loc.coordinates;
-    
-    minLng = Math.min(minLng, lng);
-    maxLng = Math.max(maxLng, lng);
-    minLat = Math.min(minLat, lat);
-    maxLat = Math.max(maxLat, lat);
-
-    // Create marker
+    // Create marker element
     const el = document.createElement('div');
     el.className = 'marker';
     el.style.width = '32px';
@@ -101,38 +75,29 @@ export const displayMap = (locations) => {
       .addTo(map);
 
     // Add popup
-    new mapboxgl.Popup({
-      offset: 30
-    })
+    new mapboxgl.Popup({ offset: 30 })
       .setLngLat(loc.coordinates)
       .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
       .addTo(map);
   });
 
-  // Adjust map view
+  // Fit bounds if multiple locations
   if (validLocations.length > 1) {
-    try {
-      const padding = 1.2; // Add 20% padding
-      const centerLng = (minLng + maxLng) / 2;
-      const centerLat = (minLat + maxLat) / 2;
-
-      map.setCenter([centerLng, centerLat]);
-      
-      // Calculate zoom based on longitude span
-      const lngSpan = maxLng - minLng;
-      const zoom = Math.max(4, Math.min(
-        10, 
-        Math.log2(360 / (lngSpan * padding))
-      ));
-      
-      map.setZoom(zoom);
-    } catch (error) {
-      console.error('Error adjusting map view:', error);
-    }
+    const bounds = new mapboxgl.LngLatBounds();
+    validLocations.forEach(loc => bounds.extend(loc.coordinates));
+    
+    map.fitBounds(bounds, {
+      padding: 100,
+      maxZoom: 10
+    });
   }
 
-  // Ensure map is fully loaded
+  // Logging
   map.on('load', () => {
     console.log('Mapbox map loaded successfully');
+  });
+
+  map.on('error', (e) => {
+    console.error('Mapbox Error:', e);
   });
 };
