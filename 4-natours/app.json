@@ -1,0 +1,26 @@
+{
+  "name": "Natours",
+  "description": "A tour booking application",
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "website": "https://github.com/Khangdang1690/Natour",
+  "repository": "https://github.com/Khangdang1690/Natour",
+  "success_url": "/",
+  "env": {
+    "NODE_ENV": {
+      "description": "Environment of the application",
+      "value": "production"
+    }
+  },
+  "addons": [
+    "heroku-mongodb"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
