@@ -38,9 +38,16 @@ exports.signup = catchAsync(async (req, res, next) => {
   // Log incoming request body for debugging
   console.log('Signup Request Body:', req.body);
 
-  // Generate OTP
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  const otpExpires = Date.now() + 10 * 60 * 1000; // Corrected OTP expiration
+  // Generate OTP with more consistent method
+  const generateOTP = () => {
+    // Ensure 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('Generated OTP:', otp);
+    return otp;
+  };
+
+  const otp = generateOTP();
+  const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes from now
 
   try {
     const newUser = await User.create({
@@ -48,18 +55,22 @@ exports.signup = catchAsync(async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
-      otp: otp,
+      otp: otp,  // Store OTP as a string
       otpExpires: otpExpires
     });
     
-    console.log('New User Created:', newUser);
+    console.log('New User Created:', {
+      email: newUser.email,
+      otp: newUser.otp,
+      otpExpires: new Date(newUser.otpExpires).toISOString()
+    });
     
+    // Send OTP via email
     await new Email(newUser, null).sendOTP(otp);
 
     createSendToken(newUser, 201, req, res);
   } catch (error) {
     console.error('Signup Error:', error);
-    // Pass any validation errors to the error handling middleware
     return next(new AppError(error.message, 400));
   }
 });
