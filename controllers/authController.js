@@ -35,29 +35,33 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  // Log incoming request body for debugging
+  console.log('Signup Request Body:', req.body);
+
   // Generate OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
-  const otpExpires = new Date(Date.now()) + 10 * 60 * 1000;
+  const otpExpires = Date.now() + 10 * 60 * 1000; // Corrected OTP expiration
 
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    photo: req.body.photo || undefined, 
-    role: req.body.role, 
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt || undefined,
-    passwordResetToken: req.body.passwordResetToken,
-    otp: otp,
-    otpExpires: otpExpires
-  });
-  // const url = `${req.protocol}://${req.get('host')}/me`;
-  // console.log(url);
-  // await new Email(newUser, url).sendWelcome();
-  
-  await new Email(newUser, null).sendOTP(otp);
+  try {
+    const newUser = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      passwordConfirm: req.body.passwordConfirm,
+      otp: otp,
+      otpExpires: otpExpires
+    });
+    
+    console.log('New User Created:', newUser);
+    
+    await new Email(newUser, null).sendOTP(otp);
 
-  createSendToken(newUser, 201, req, res);
+    createSendToken(newUser, 201, req, res);
+  } catch (error) {
+    console.error('Signup Error:', error);
+    // Pass any validation errors to the error handling middleware
+    return next(new AppError(error.message, 400));
+  }
 });
 
 exports.verifyOTP = catchAsync(async (req, res, next) => {
@@ -80,7 +84,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).sendWelcome();
+  await new Email(user, url).sendWelcome();
 
   // Send JWT token
   createSendToken(user, 200, req, res);
@@ -189,7 +193,7 @@ exports.isLoggedIn = async (req, res, next) => {
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
-    // roles [admin, 'lead-guide].role = 'user'
+    // roles [admin, 'lead-guide'].role = 'user'
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403)
