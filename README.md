@@ -38,6 +38,39 @@ Natours is a comprehensive web application designed for booking adventure tours,
 - **Payment**: Stripe
 - **Authentication**: JSON Web Tokens (JWT)
 
+### Detailed Technology Breakdown
+
+#### Backend Frameworks & Libraries
+- **Express.js**: Web application framework for robust API development
+- **Mongoose**: ODM (Object Data Modeling) library for MongoDB and Node.js
+- **Nodemailer**: Email sending capabilities
+- **Multer**: Multipart/form-data handling for file uploads
+- **Sharp**: High-performance image processing
+
+#### Security & Performance
+- **bcryptjs**: Password hashing and security
+- **JSON Web Tokens (JWT)**: Secure user authentication
+- **helmet**: Helps secure Express apps by setting various HTTP headers
+- **express-mongo-sanitize**: Prevents NoSQL injection attacks
+- **xss-clean**: Middleware to sanitize user input and prevent XSS attacks
+- **express-rate-limit**: Limits repeated requests to public APIs and/or endpoints
+
+#### Frontend Technologies
+- **Pug**: Template engine for efficient HTML rendering
+- **Axios**: Promise-based HTTP client for API requests
+- **Parcel**: Web application bundler for JavaScript
+- **Slugify**: URL-friendly string conversion
+
+#### Payment & Validation
+- **Stripe**: Secure payment processing integration
+- **validator.js**: String validation and sanitization
+
+#### Development & Debugging Tools
+- **Nodemon**: Automatically restarts the node application when file changes detected
+- **Morgan**: HTTP request logger middleware
+- **ESLint**: JavaScript linting with Airbnb style guide
+- **Prettier**: Code formatting
+
 ## Getting Started
 
 ### Prerequisites
