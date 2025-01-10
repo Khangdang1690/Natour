@@ -17,6 +17,7 @@ router.get('/login', authController.isLoggedIn, viewsController.getLoginForm);
 router.get('/signup', viewsController.getSignupForm);
 router.get('/me', authController.protect, viewsController.getAccount);
 router.get('/my-tours', authController.protect, viewsController.getMyTours);
+router.get('/verify-otp', viewsController.getVerifyOTPForm);
 
 router.post(
   '/submit-user-data',

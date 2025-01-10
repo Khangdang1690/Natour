@@ -38,12 +38,13 @@ module.exports = class Email {
   }
 
   // Send the actual email
-  async send(template, subject) {
+  async send(template, subject, vars = {}) {
     // 1) Render HTML based on a pug template
     const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
       firstName: this.firstName,
       url: this.url,
-      subject
+      subject,
+      ...vars
     });
 
     // 2) Define email options
@@ -67,6 +68,14 @@ module.exports = class Email {
     await this.send(
       'passwordReset',
       'Your password reset token (valid for only 10 minutes)'
+    );
+  }
+
+  async sendOTP(otp) {
+    await this.send(
+      'otp', // This refers to a pug template named `otp.pug`
+      'Your OTP for Account Verification',
+      { otp }, // Pass OTP as a variable to the template
     );
   }
 };

@@ -1,0 +1,19 @@
+extends base
+
+block content
+  main.main
+    .login-form
+      h2.heading-secondary Verify Your Account
+      form.form.form--verify-otp
+        .form__group
+          label.form__label(for='otp') One-Time Password
+          input#otp.form__input(
+            type='text' 
+            placeholder='Enter 6-digit OTP' 
+            required 
+            minlength='6' 
+            maxlength='6' 
+            pattern='\\d{6}'
+          )
+        .form__group
+          button.btn.btn--green Verify OTP

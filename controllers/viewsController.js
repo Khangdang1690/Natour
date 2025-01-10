@@ -10,7 +10,13 @@ exports.alerts = (req, res, next) => {
     res.locals.alert = 'Your booking was successful! Please check your email for a confirmation. If your booking doesn\'t show up here immediately, please come back later.';
   }
   next();
-}
+};
+
+exports.getVerifyOTPForm = (req, res) => {
+  res.status(200).render('verifyOtp', {
+    title: 'Verify Account'
+  });
+};
 
 exports.getOverview = catchAsync(async (req, res, next) => {
   // 1) Get tour data from collection

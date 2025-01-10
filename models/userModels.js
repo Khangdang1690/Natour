@@ -41,6 +41,18 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same!',
     }
   },
+  otp: {
+    type: String,
+    select: false
+  },
+  otpExpires: {
+    type: Date,
+    select: false
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -75,6 +87,20 @@ userSchema.pre(/^find/, function(next) {
   this.find({ active: { $ne: false } });
   next();
 })
+
+// Add this after the existing schema methods
+userSchema.post('save', async function(doc, next) {
+  // Check if the user is unverified and OTP has expired
+  if (!doc.isVerified && doc.otpExpires && doc.otpExpires < Date.now()) {
+    try {
+      await this.constructor.deleteOne({ _id: doc._id });
+      console.log(`Unverified user ${doc.email} deleted due to expired OTP`);
+    } catch (error) {
+      console.error('Error deleting unverified user:', error);
+    }
+  }
+  next();
+});
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,

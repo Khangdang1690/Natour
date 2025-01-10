@@ -26,22 +26,3 @@ export const signup = async (name, email, password, passwordConfirm) => {
     showAlert('error', errorMessage);
   }
 };
-
-// Event Listener for Signup Form
-if (document.querySelector('.form--signup')) {
-  document.querySelector('.form--signup').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-    // Basic client-side validation
-    if (password !== passwordConfirm) {
-      showAlert('error', 'Passwords do not match');
-      return;
-    }
-
-    signup(name, email, password, passwordConfirm);
-  });
-};

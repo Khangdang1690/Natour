@@ -35,6 +35,10 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  const otpExpires = new Date(Date.now()) + 10 * 60 * 1000;
+
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -44,12 +48,42 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt || undefined,
     passwordResetToken: req.body.passwordResetToken,
+    otp: otp,
+    otpExpires: otpExpires
   });
-  const url = `${req.protocol}://${req.get('host')}/me`;
+  // const url = `${req.protocol}://${req.get('host')}/me`;
   // console.log(url);
-  await new Email(newUser, url).sendWelcome();
+  // await new Email(newUser, url).sendWelcome();
+  
+  await new Email(newUser, null).sendOTP(otp);
 
   createSendToken(newUser, 201, req, res);
+});
+
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+  const { otp } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ 
+    otp: otp,
+    otpExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return next(new AppError('Invalid or expired OTP', 400));
+  }
+
+  // Clear OTP fields and activate the user
+  user.otp = undefined;
+  user.otpExpires = undefined;
+  user.isVerified = true; // Assuming you have an `isVerified` field in the User model
+  await user.save({ validateBeforeSave: false });
+
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new Email(newUser, url).sendWelcome();
+
+  // Send JWT token
+  createSendToken(user, 200, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
