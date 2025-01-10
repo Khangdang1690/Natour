@@ -3,7 +3,7 @@ import { showAlert } from './alert';
 
 export const signup = async (name, email, password, passwordConfirm) => {
   try {
-    const response = await axios({
+    const res = await axios({
       method: 'POST',
       url: '/api/v1/users/signup',
       data: {
@@ -14,14 +14,14 @@ export const signup = async (name, email, password, passwordConfirm) => {
       }
     });
 
-    if (response.data.status === 'success') {
-      showAlert('success', 'Account created successfully!');
+    if (res.data.status === 'success') {
+      showAlert('success', 'Signup successful! Please verify your account.');
       window.setTimeout(() => {
-        location.assign('/');
+        // Redirect to the OTP verification page
+        location.assign('/verify-otp');
       }, 1500);
     }
   } catch (error) {
-    // Handle specific error messages
     const errorMessage = error.response?.data?.message || 'Signup failed. Please try again.';
     showAlert('error', errorMessage);
   }
