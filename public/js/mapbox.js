@@ -4,7 +4,7 @@ export const displayMap = locations => {
 
   var map = new mapboxgl.Map({
     container: 'map',
-    style: 'https://api.mapbox.com/styles/v1/khangdang123/cm5adqlcq00pn01su5n31dbee.html?title=copy&access_token=pk.eyJ1Ijoia2hhbmdkYW5nMTIzIiwiYSI6ImNtNWFiZDMyejNhcTEya3B1eDZwc3ZwdGIifQ.uTPDMWolmqvZ9feRjoZxhw&zoomwheel=true&fresh=true#2/38/-34',
+    style: 'mapbox://styles/khangdang123/cm5adqlcq00pn01su5n31dbee',
     scrollZoom: false
   });
 
