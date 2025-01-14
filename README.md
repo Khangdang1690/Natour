@@ -85,10 +85,11 @@ Natours is a comprehensive web application designed for booking adventure tours,
 4. Run the application: `npm start`
 
 ## Live Demo
-Visit [Natours](https://natoursprojectme-313ea3b44ecb.herokuapp.com/)
-- **Test Account**:
-  - Email: `laura@example.com`
-  - Password: `test1234`
+🌐 **Deployment**: [https://natour-s2tz.onrender.com/](https://natour-s2tz.onrender.com/)
+
+### Accessing the Demo
+- Email: `laura@example.com`
+- Password: `test1234`
 
 ## Contributing
 Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
